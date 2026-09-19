@@ -1,11 +1,24 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-import sqlite3
+import mysql.connector
 from datetime import datetime
 
 
 def conectar():
-    return sqlite3.connect("chamados.db")
+    try:
+        return mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="",        # padrão do XAMPP: senha vazia
+            database="helpdesk"
+        )
+    except mysql.connector.Error as erro:
+        messagebox.showerror(
+            "Erro de conexão",
+            f"Não foi possível conectar ao MySQL.\n"
+            f"Verifique se o MySQL está iniciado no XAMPP.\n\n{erro}"
+        )
+        raise
 
 
 def abrir_chamado():
@@ -37,7 +50,7 @@ def abrir_chamado():
         data_abertura,
         hora_abertura
     )
-    VALUES (?, ?, ?, ?, ?)
+    VALUES (%s, %s, %s, %s, %s)
     """, (
         titulo,
         descricao,
@@ -47,6 +60,7 @@ def abrir_chamado():
     ))
 
     conexao.commit()
+    cursor.close()
     conexao.close()
 
     campo_titulo.delete(0, tk.END)
@@ -82,6 +96,7 @@ def carregar_chamados():
 
     registros = cursor.fetchall()
 
+    cursor.close()
     conexao.close()
 
     for registro in registros:
@@ -102,6 +117,7 @@ def buscar_chamado():
     conexao = conectar()
     cursor = conexao.cursor()
 
+    # No MySQL o CAST para texto é CHAR (não TEXT como no SQLite)
     cursor.execute("""
     SELECT
         id,
@@ -111,8 +127,8 @@ def buscar_chamado():
         data_abertura,
         hora_abertura
     FROM chamados
-    WHERE titulo LIKE ?
-       OR CAST(id AS TEXT) LIKE ?
+    WHERE titulo LIKE %s
+       OR CAST(id AS CHAR) LIKE %s
     ORDER BY id DESC
     """, (
         f"%{termo}%",
@@ -121,6 +137,7 @@ def buscar_chamado():
 
     registros = cursor.fetchall()
 
+    cursor.close()
     conexao.close()
 
     for registro in registros:
@@ -139,10 +156,11 @@ def resolver_por_id(id_chamado, janela_detalhes):
     cursor.execute("""
     UPDATE chamados
     SET status='Resolvido'
-    WHERE id=?
+    WHERE id=%s
     """, (id_chamado,))
 
     conexao.commit()
+    cursor.close()
     conexao.close()
 
     carregar_chamados()
@@ -178,11 +196,12 @@ def abrir_detalhes(event):
         data_abertura,
         hora_abertura
     FROM chamados
-    WHERE id=?
+    WHERE id=%s
     """, (id_chamado,))
 
     chamado = cursor.fetchone()
 
+    cursor.close()
     conexao.close()
 
     janela = tk.Toplevel()
