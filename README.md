@@ -1,4 +1,4 @@
-Sistema de Help Desk desenvolvido em Python, Tkinter e SQLite para gerenciamento de chamados internos.
+Sistema de Help Desk desenvolvido em Python, Tkinter e MySql para gerenciamento de chamados internos.
 
 O projeto foi criado com foco em simular uma aplicação corporativa utilizada por equipes de suporte técnico para registro, acompanhamento e resolução de incidentes.
 
@@ -32,5 +32,5 @@ Crítica
 🛠️ Tecnologias Utilizadas
 Python 3
 Tkinter
-SQLite
+MySql
 Datetime
