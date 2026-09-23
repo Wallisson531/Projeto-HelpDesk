@@ -9,7 +9,7 @@ def conectar():
         return mysql.connector.connect(
             host="localhost",
             user="root",
-            password="",        # padrão do XAMPP: senha vazia
+            password="",        
             database="helpdesk"
         )
     except mysql.connector.Error as erro:
